@@ -1,0 +1,46 @@
+name: Main2 → Main1 → Master PR
+
+on:
+  push:
+    branches:
+      - main2
+
+jobs:
+  promote-changes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main2
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch all branches
+        run: |
+          git fetch origin main1:main1
+          git fetch origin master:master
+
+      - name: Merge main2 into main1
+        run: |
+          git checkout main1
+          git merge origin/main2 --no-edit
+
+      - name: Push to main1
+        run: |
+          git push https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/${{ github.repository }} main1
+
+      - name: Create PR from main1 → master
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        run: |
+          gh pr create \
+            --base master \
+            --head main1 \
+            --title "Promote changes from main1 to master" \
+            --body "Auto-created PR to promote changes from main2 → main1 → master" \
+            --repo "${{ github.repository }}" || echo "PR already exists or failed"
