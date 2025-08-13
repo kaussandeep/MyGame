@@ -1,0 +1,38 @@
+name: Push Commits from merge to UAT
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 * * * *" # Runs every hour at 15 minutes past; adjust as needed
+
+jobs:
+  push-merge-to-uat:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history for all branches
+
+      - name: Set up Git user
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Fetch all branches
+        run: git fetch --all
+
+      - name: Checkout UAT branch
+        run: git checkout UAT
+
+      - name: Rebase merge onto UAT
+        run: |
+          git rebase merge
+        continue-on-error: true
+
+      - name: Push changes to UAT branch
+        run: |
+          git push origin UAT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
