@@ -22,4 +22,4 @@ npm install
 protractor conf.js
 
 Done !
-Take 2 
+Take 3
