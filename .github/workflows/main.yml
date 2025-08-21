@@ -1,7 +1,8 @@
 name: Sync caredev → merge
 
 on:
-  workflow_dispatch:
+  repository_dispatch:
+    types: [push_caredev_to_merge]
   schedule:
     - cron: "0 * * * *" # Runs every hour; adjust as needed
 
