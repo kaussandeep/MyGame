@@ -1,7 +1,8 @@
 name: Sync merge → UAT
 
 on:
-  workflow_dispatch:
+  repository_dispatch:
+    types: [push_merge_to_UAT]
   schedule:
     - cron: "0 * * * *" # Runs every hour; adjust as needed
 
