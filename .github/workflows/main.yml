@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetch all history so we can access all commits
+          fetch-depth: 0 # important: fetch full history
 
       - name: Set up Git user
         run: |
@@ -21,21 +21,19 @@ jobs:
           git config --global user.email "actions@github.com"
 
       - name: Fetch all branches
-        run: git fetch --all
+        run: git fetch origin +refs/heads/*:refs/remotes/origin/*
 
       - name: Checkout merge branch
         run: git checkout merge
 
+      - name: Ensure caredev branch exists locally
+        run: git checkout -b caredev origin/caredev
+
       - name: Rebase caredev onto merge
-        run: |
-          git rebase caredev
+        run: git rebase caredev
         continue-on-error: true
 
       - name: Push changes to merge branch
-        run: |
-          git push origin merge
+        run: git push origin merge
         env:
-          # Set this if your repo is private and you need a token with write access
-          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # For public repos, the default GITHUB_TOKEN works
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
