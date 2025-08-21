@@ -21,6 +21,4 @@ npm install
 3.) Run the tests
 protractor conf.js
 
-take5
-this is test
-I like this
+Take1
