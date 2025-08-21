@@ -1,4 +1,4 @@
-name: Copy Commits from caredev to merge
+name: Sync caredev → merge
 
 on:
   workflow_dispatch:
@@ -6,14 +6,15 @@ on:
     - cron: "0 * * * *" # Runs every hour; adjust as needed
 
 jobs:
-  copy-commits:
+  sync-branches:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # important: fetch full history
+          fetch-depth: 0 # Fetch all history
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Git user
         run: |
@@ -26,14 +27,9 @@ jobs:
       - name: Checkout merge branch
         run: git checkout merge
 
-      - name: Ensure caredev branch exists locally
-        run: git checkout -b caredev origin/caredev
+      - name: Reset merge branch to caredev
+        run: |
+          git reset --hard origin/caredev
 
-      - name: Rebase caredev onto merge
-        run: git rebase caredev
-        continue-on-error: true
-
-      - name: Push changes to merge branch
-        run: git push origin merge
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push updated merge branch
+        run: git push origin merge --force
