@@ -1,26 +1,35 @@
-name: Cherry-pick Selected Commits
+name: Cherry Pick
+
 on:
   workflow_dispatch:
     inputs:
       shas:
-        description: 'Comma-separated list of commit SHAs to cherry-pick'
+        description: "Comma-separated list of commit SHAs to cherry-pick"
         required: true
         type: string
+
 jobs:
-  cherry-pick:
+  cherry_pick:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout merge branch
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: merge
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cherry-pick commits
+
+      - name: Set up Git
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "actions@github.com"
-          IFS=',' read -ra SHALIST <<< "${{ github.event.inputs.shas }}"
-          for sha in "${SHALIST[@]}"; do
-            git cherry-pick "$sha" || { echo "Conflict on $sha, aborting"; git cherry-pick --abort; exit 1; }
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Cherry-pick commits
+        env:
+          SHAS: ${{ github.event.inputs.shas }}
+        run: |
+          echo "Cherry-picking the following SHAs: $SHAS"
+          for sha in $(echo $SHAS | tr ',' ' '); do
+            echo "Cherry-picking $sha"
+            git cherry-pick $sha || { echo "::error ::Failed to cherry-pick $sha"; exit 1; }
           done
-          git push origin HEAD:merge
+
+      - name: Push changes
+        run: |
+          git push origin HEAD
