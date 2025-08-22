@@ -21,5 +21,3 @@ npm install
 3.) Run the tests
 protractor conf.js
 
-this is 22nd august
-done
