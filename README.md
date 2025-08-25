@@ -21,4 +21,4 @@ npm install
 3.) Run the tests
 protractor conf.js
 
-t
+t flight
